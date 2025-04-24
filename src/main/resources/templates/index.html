@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Photo Album Store</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .photo { margin: 10px; padding: 10px; border: 1px solid #ccc; display: inline-block; }
+        .cart { margin-top: 20px; }
+        .message { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Photo Album Store</h1>
+
+    <!-- Display messages -->
+    <div th:if="${message}" th:class="${message.contains('failed') or message.contains('Invalid') or message.contains('not found') ? 'error' : 'message'}">
+        <p th:text="${message}"></p>
+    </div>
+
+    <!-- Display photos -->
+    <h2>Available Photos</h2>
+    <div th:each="photo : ${photos}" class="photo">
+        <img th:src="${photo.url}" alt="${photo.caption}" width="200"/>
+        <p>ID: <span th:text="${photo.id}"></span></p>
+        <p>Caption: <span th:text="${photo.caption}"></span></p>
+        <p>Price: $<span th:text="${photo.price}"></span></p>
+        <form th:action="@{/add-to-cart}" method="post">
+            <input type="hidden" name="photoId" th:value="${photo.id}"/>
+            <label>Quantity: <input type="number" name="quantity" min="1" value="1"/></label>
+            <button type="submit">Add to Cart</button>
+        </form>
+    </div>
+
+    <!-- Display cart -->
+    <div class="cart">
+        <h2>Your Cart</h2>
+        <div th:if="${cart.isEmpty()}">
+            <p>Your cart is empty.</p>
+        </div>
+        <div th:unless="${cart.isEmpty()}">
+            <table border="1">
+                <tr>
+                    <th>Photo ID</th>
+                    <th>Caption</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+                <tr th:each="item : ${cart}">
+                    <td th:text="${item.photo.id}"></td>
+                    <td th:text="${item.photo.caption}"></td>
+                    <td th:text="'$' + ${item.photo.price}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td th:text="'$' + ${item.totalPrice}"></td>
+                </tr>
+            </table>
+            <p>Total: $<span th:text="${cartTotal}"></span></p>
+            <form th:action="@{/checkout}" method="post">
+                <button type="submit">Checkout</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
